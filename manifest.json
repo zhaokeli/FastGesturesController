@@ -1,0 +1,21 @@
+{
+  //  Extension ID: jlnojbkngkdnombmodfihpiophcplekf
+  "manifest_version": 3,
+
+  "name": "FastGestures Agent",
+  "description": "example",
+  "version": "1.0",
+  "icons": {
+    "16": "ico-16x16.png",
+    "24": "ico-24x24.png",
+    "32": "ico-32x32.png",
+    "48": "ico-48x48.png",
+    "64": "ico-64x64.png",
+    "128": "ico-128x128.png"
+  },
+  "action": {
+    "default_icon": "ico-48x48.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["nativeMessaging"]
+}
