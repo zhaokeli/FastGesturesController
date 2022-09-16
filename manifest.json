@@ -1,7 +1,5 @@
 {
-  //  Extension ID: jlnojbkngkdnombmodfihpiophcplekf
   "manifest_version": 3,
-
   "name": "FastGestures Agent",
   "description": "example",
   "version": "1.0",
@@ -17,5 +15,9 @@
     "default_icon": "ico-48x48.png",
     "default_popup": "popup.html"
   },
-  "permissions": ["nativeMessaging"]
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "nativeMessaging"],
+  "host_permissions": ["http://*/", "https://*/", "*://*/*"]
 }
