@@ -13,6 +13,10 @@ function invoke() {
 	port = chrome.runtime.connectNative('com.fastgestures.agent');
 	port.onMessage.addListener(function (response) {
 		console.log("rev ", response);
+		setTimeout(() => {
+			port.postMessage({ text: (new Date()).getTime() });
+		}, 3000);
+
 	});
 	port.onDisconnect.addListener(function (response) {
 		console.log("disconnect", response);
