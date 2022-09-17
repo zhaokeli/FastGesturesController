@@ -1,16 +1,35 @@
+var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	console.log(message);
-	sendResponse('成功收到了');
-	connectHost();
+	// 给popup回应消息
+	sendResponse('成功收到了bg.js给的返回数据');
+	//连接主机代理
+	switch (message.action) {
+		case 'conn':
+			connectHost();
+			break;
+		case 'reconn':
+			connectHost();
+			break;
+		case 'message':
+			port && port.postMessage({ text: message.content });
+			break;
+		default:
+			break;
+	}
+
 });
 
 // function updateResult(obj, state) {
 // 	document.getElementById(obj).innerHTML = state;
 // }
-var port = null;
-function connectHost() {
-	if (port) {
+
+function connectHost(force) {
+	if (port && !force) {
 		return
+	}
+	if (port) {
+		port.disconnect();
 	}
 	// var hostName = "com.fastgestures.agent";
 	// var port = chrome.runtime.connectNative(hostName);
@@ -18,9 +37,11 @@ function connectHost() {
 	port = chrome.runtime.connectNative('com.fastgestures.agent');
 	port.onMessage.addListener(function (response) {
 		console.log("rev ", response);
-		setTimeout(() => {
-			port.postMessage({ text: (new Date()).getTime() });
-		}, 3000);
+		// 返回信息
+		port.postMessage({ text: (new Date()).getTime() });
+		/* 		setTimeout(() => {
+					port.postMessage({ text: (new Date()).getTime() });
+				}, 3000); */
 
 	});
 	port.onDisconnect.addListener(function (response) {
@@ -28,11 +49,7 @@ function connectHost() {
 		// port.postMessage({ text: "我的应用程序，您好！" });
 		port = null;
 	});
-	// port.onConnect.addListener(function () {
-	// 	console.log("已连接");
-
-	// });
-	port.postMessage({ text: "我的应用程序，您好！" });
+	//port.postMessage({ text: "我的应用程序，您好！" });
 }
 
 // function listener() {
