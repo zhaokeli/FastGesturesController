@@ -18,6 +18,18 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["tabs", "nativeMessaging"],
+  "permissions": [
+    "background",
+    "tabs",
+    "activeTab",
+    "nativeMessaging",
+    "scripting"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page-script.js"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ],
   "host_permissions": ["http://*/", "https://*/", "*://*/*"]
 }

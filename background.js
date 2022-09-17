@@ -15,6 +15,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 			port && port.postMessage({ text: message.content });
 			break;
 		default:
+			console.log(message, sender, sendResponse);
 			break;
 	}
 
@@ -24,7 +25,65 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 // 	document.getElementById(obj).innerHTML = state;
 // }
 
+
+function injectPageScript(payload) {
+	const script = document.createElement("script");
+
+	script.setAttribute('type', 'text/javascript');
+	script.setAttribute('src', chrome.runtime.getURL("page-script.js"));
+
+	script.onload = () => {
+		/*
+		 * Using document.dispatchEvent instead window.postMessage by security reason
+		 * https://github.com/w3c/webextensions/issues/78#issuecomment-915272953
+		 */
+		document.dispatchEvent(new CustomEvent('message', {
+			detail: payload
+		}))
+		document.head.removeChild(script)
+	}
+
+	document.head.appendChild(script);
+}
+// function getCurrentTab(): Promise<Browser.Tabs.Tab> {
+// 	return new Promise < Browser.Tabs.Tab > ((resolve, reject) => {
+// 		browser.tabs
+// 			.query({
+// 				active: true,
+// 				currentWindow: true,
+// 			})
+// 			.then((tabs: Browser.Tabs.Tab[]) => {
+// 				const tab = tabs[0];
+// 				if (tab) resolve(tab);
+// 				else reject(new Error('tab not found'));
+// 			});
+// 	});
+// }
+var testJs = 'alert(document.title);function testget(){return document.title}testget();';
+
 function connectHost(force) {
+	chrome.tabs.query({ active: true }, function (tabs) {
+		let tab = tabs[0];
+		chrome.scripting.executeScript(
+			{
+				target: { tabId: tab.id },
+				func: injectPageScript,
+				args: [testJs],
+			},
+			// function (result) {
+			// 	console.log('Result = ' + result);
+			// 	port.postMessage({ text: result[0].result + (new Date()).getTime() });
+			// }
+			(injectionResults) => {
+				for (const frameResult of injectionResults) {
+					console.log('Iframe Title:' + frameResult.result);
+					// 	console.log('Result = ' + result);
+					port.postMessage({ text: frameResult.result + (new Date()).getTime() });
+				}
+			}
+			//(injectionResults) => displaySearch(injectionResults[0].result)
+		);
+	});
 	if (port && !force) {
 		return
 	}
@@ -37,8 +96,25 @@ function connectHost(force) {
 	port = chrome.runtime.connectNative('com.fastgestures.agent');
 	port.onMessage.addListener(function (response) {
 		console.log("rev ", response);
-		// 返回信息
-		port.postMessage({ text: (new Date()).getTime() });
+		// 在页面执行消息并返回信息
+
+
+
+
+		// chrome.scripting.executeScript({ code: codeToExec }, function (result) {
+		// 	console.log('Result = ' + result);
+		// 	port.postMessage({ text: result + (new Date()).getTime() });
+		// });
+		//chrome.tabs.getSelected(null, function (tab) {
+		//console.log(tab.title);
+		//console.log(tab.url);
+		//const tabId = getTabId();
+		//chrome.tabs.executeScript({ code: codeToExec }, function (result) {
+		//console.log('Result = ' + result);
+		//	port.postMessage({ text: result + (new Date()).getTime() });
+		//});
+		//})
+
 		/* 		setTimeout(() => {
 					port.postMessage({ text: (new Date()).getTime() });
 				}, 3000); */
