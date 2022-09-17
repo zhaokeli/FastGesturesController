@@ -25,11 +25,13 @@
     "nativeMessaging",
     "scripting"
   ],
-  "web_accessible_resources": [
+  "host_permissions": ["http://*/", "https://*/", "*://*/*"],
+  "content_scripts": [
     {
-      "resources": ["page-script.js"],
-      "matches": ["http://*/*", "https://*/*"]
+      "all_frames": false,
+      "matches": ["http://*/*", "https://*/*"],
+      "run_at": "document_start",
+      "js": ["umd.min.js"]
     }
-  ],
-  "host_permissions": ["http://*/", "https://*/", "*://*/*"]
+  ]
 }

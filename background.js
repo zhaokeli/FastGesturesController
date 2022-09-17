@@ -27,23 +27,42 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 
 function injectPageScript(payload) {
-	const script = document.createElement("script");
+	try {
+		const evil = evalCore.getEvalInstance(window, { timeout: 10000 });
 
-	script.setAttribute('type', 'text/javascript');
-	script.setAttribute('src', chrome.runtime.getURL("page-script.js"));
-
-	script.onload = () => {
-		/*
-		 * Using document.dispatchEvent instead window.postMessage by security reason
-		 * https://github.com/w3c/webextensions/issues/78#issuecomment-915272953
-		 */
-		document.dispatchEvent(new CustomEvent('message', {
-			detail: payload
-		}))
-		document.head.removeChild(script)
+		return evil(payload);
+	} catch (e) {
+		return e.message;
 	}
+	// console.log(a); // 1
 
-	document.head.appendChild(script);
+	// const { evalModule, transformCode } = evalCore;
+
+	// const { Interpreter } = evalModule;
+	// Interpreter.global = window;
+	// const interpreter = new Interpreter();
+	// // 现在你可以使用eval5的所有功能
+
+	// return interpreter.evaluate(transformCode(payload));
+
+
+	// const script = document.createElement("script");
+
+	// script.setAttribute('type', 'text/javascript');
+	// script.setAttribute('src', chrome.runtime.getURL("page-script.js"));
+
+	// script.onload = () => {
+	// 	/*
+	// 	 * Using document.dispatchEvent instead window.postMessage by security reason
+	// 	 * https://github.com/w3c/webextensions/issues/78#issuecomment-915272953
+	// 	 */
+	// 	document.dispatchEvent(new CustomEvent('message', {
+	// 		detail: payload
+	// 	}))
+	// 	document.head.removeChild(script)
+	// }
+
+	// document.head.appendChild(script);
 }
 // function getCurrentTab(): Promise<Browser.Tabs.Tab> {
 // 	return new Promise < Browser.Tabs.Tab > ((resolve, reject) => {
@@ -59,31 +78,10 @@ function injectPageScript(payload) {
 // 			});
 // 	});
 // }
-var testJs = 'alert(document.title);function testget(){return document.title}testget();';
+//var testJs = 'alert(document.title);function testget(){return document.title}testget();';
 
 function connectHost(force) {
-	chrome.tabs.query({ active: true }, function (tabs) {
-		let tab = tabs[0];
-		chrome.scripting.executeScript(
-			{
-				target: { tabId: tab.id },
-				func: injectPageScript,
-				args: [testJs],
-			},
-			// function (result) {
-			// 	console.log('Result = ' + result);
-			// 	port.postMessage({ text: result[0].result + (new Date()).getTime() });
-			// }
-			(injectionResults) => {
-				for (const frameResult of injectionResults) {
-					console.log('Iframe Title:' + frameResult.result);
-					// 	console.log('Result = ' + result);
-					port.postMessage({ text: frameResult.result + (new Date()).getTime() });
-				}
-			}
-			//(injectionResults) => displaySearch(injectionResults[0].result)
-		);
-	});
+
 	if (port && !force) {
 		return
 	}
@@ -98,7 +96,32 @@ function connectHost(force) {
 		console.log("rev ", response);
 		// 在页面执行消息并返回信息
 
-
+		chrome.tabs.query({ active: true }, function (tabs) {
+			let tab = tabs[0];
+			chrome.scripting.executeScript(
+				{
+					target: { tabId: tab.id },
+					func: injectPageScript,
+					args: [response.code],
+				},
+				// function (result) {
+				// 	console.log('Result = ' + result);
+				// 	port.postMessage({ text: result[0].result + (new Date()).getTime() });
+				// }
+				(injectionResults) => {
+					try {
+						for (const frameResult of injectionResults) {
+							console.log('返回值为:' + frameResult.result);
+							// 	console.log('Result = ' + result);
+							port.postMessage({ text: frameResult.result + (new Date()).getTime() });
+						}
+					} catch (e) {
+						port.postMessage({ text: e.message + (new Date()).getTime() });
+					}
+				}
+				//(injectionResults) => displaySearch(injectionResults[0].result)
+			);
+		});
 
 
 		// chrome.scripting.executeScript({ code: codeToExec }, function (result) {
