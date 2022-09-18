@@ -1,4 +1,4 @@
-
+var bg = chrome.extension.getBackgroundPage();
 function updateResult(obj, state) {
 	document.getElementById(obj).innerHTML = state;
 }
@@ -8,13 +8,18 @@ function listener() {
 	updateResult("result2", "listen");
 }
 document.addEventListener('DOMContentLoaded', function () {
+	// 给bg.js发消息，查询连接状态
+	chrome.runtime.sendMessage({ action: 'status' }, function (response) {
+		console.log(response);
+		updateResult("status", response ? "已连接" : '未连接');
+	});
 	document.querySelector('#conn').addEventListener('click', function () {
 		// 给bg.js发消息
 		chrome.runtime.sendMessage({ action: 'conn' }, function (response) {
 			console.log(response);
 		});
 
-		updateResult("result1", "已连接");
+		updateResult("status", "已连接");
 	});
 	document.querySelector('#reconn').addEventListener('click', function () {
 		// 给bg.js发消息
@@ -22,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			console.log(response);
 		});
 
-		updateResult("result1", "已连接");
+		updateResult("status", "已连接");
 	});
 	document.querySelector('#send').addEventListener('click', function () {
 		// 给bg.js发消息

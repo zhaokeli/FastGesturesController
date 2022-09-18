@@ -4,13 +4,23 @@ function getMessageData(content, action) {
 		content: content
 	};
 }
+setInterval(() => {
+	if (!port) {
+		return;
+	}
+	// 心跳检测
+	port.postMessage(getMessageData('test connected', 'xintiao'));
+}, 3000);
 var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	console.log(message);
 	// 给popup回应消息
-	sendResponse('这是bg.js给的返回值');
+	//sendResponse('这是bg.js给的返回值');
 	//连接主机代理
 	switch (message.action) {
+		case 'status':
+			sendResponse(port);
+			break;
 		case 'conn':
 			connectHost();
 			break;
@@ -101,6 +111,8 @@ function connectHost(force) {
 	port = chrome.runtime.connectNative('com.fastgestures.agent');
 	port.onMessage.addListener(function (response) {
 		console.log("rev ", response);
+		if (response.action !== 'script') {
+		}
 		// 在页面执行消息并返回信息
 		if (response.action !== 'script') {
 			return
