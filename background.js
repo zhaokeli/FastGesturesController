@@ -4,13 +4,6 @@ function getMessageData(content, action) {
 		content: content
 	};
 }
-setInterval(() => {
-	if (!port) {
-		return;
-	}
-	// 心跳检测
-	port.postMessage(getMessageData('test connected', 'xintiao'));
-}, 3000);
 var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	console.log(message);
@@ -132,22 +125,26 @@ function connectHost(force) {
 				// }
 				(injectionResults) => {
 					try {
+						var data = {};
 						if (!injectionResults) {
-							port.postMessage(getMessageData('', 'return'));
+							data = getMessageData('', 'return');
 							return;
 						}
 						//console.log(injectionResults);
 						//for (const frameResult of injectionResults) {
-						console.log('返回值为:', injectionResults);
+						//console.log('返回值为:', injectionResults);
 						// 	console.log('Result = ' + result);
-						port.postMessage(getMessageData(injectionResults[0].result, 'return'));
+						data = getMessageData(injectionResults[0].result, 'return');
 						//}
 					} catch (e) {
 						if (port) {
-							port.postMessage(getMessageData(e.message, 'return'));
+							data = getMessageData(e.message, 'return');
 						} else {
 							console.log(e.message);
 						}
+					} finally {
+						console.log('执行JS返回结果为: ', data);
+						port.postMessage(data);
 					}
 				}
 				//(injectionResults) => displaySearch(injectionResults[0].result)
@@ -195,3 +192,7 @@ function connectHost(force) {
 // 	});
 // });
 
+//首次连接
+setTimeout(() => {
+	connectHost();
+}, 1000);
