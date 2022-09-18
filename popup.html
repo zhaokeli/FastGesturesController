@@ -9,17 +9,27 @@
 	<script charset="utf-8" type="text/javascript" src="popup.js"></script>
 	<style>
 		.container {
+			padding: 10px;
 			width: 300px;
+		}
+
+		.btn {
+			padding: 10px 20px;
+			margin-bottom: 10px;
+		}
+
+		.status-text {
+			text-align: center;
 		}
 	</style>
 </head>
 
 <body>
 	<div class="container">
-		<button id="conn">连接服务</button>
-		<button id="reconn">重新连接服务</button>
-		<button id="send">发送消息</button>
-		<span id="status">未连接</span>
+		<button class="btn" id="conn">连接服务</button>
+		<button class="btn" id="reconn">重新连接服务</button>
+		<button class="btn" id="send">发送消息</button>
+		<span class="status-text" id="status">未连接</span>
 	</div>
 </body>
 

@@ -6,7 +6,7 @@ function getMessageData(content, action) {
 }
 var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-	console.log(message);
+	//console.log(message);
 	// 给popup回应消息
 	//sendResponse('这是bg.js给的返回值');
 	//连接主机代理
