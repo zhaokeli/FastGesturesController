@@ -1,18 +1,24 @@
+function getMessageData(content, action) {
+	return {
+		action: action,
+		content: content
+	};
+}
 var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	console.log(message);
 	// 给popup回应消息
-	sendResponse('成功收到了bg.js给的返回数据');
+	sendResponse('这是bg.js给的返回值');
 	//连接主机代理
 	switch (message.action) {
 		case 'conn':
 			connectHost();
 			break;
 		case 'reconn':
-			connectHost();
+			connectHost(true);
 			break;
 		case 'message':
-			port && port.postMessage({ text: message.content });
+			port && port.postMessage(getMessageData('msg', message.content));
 			break;
 		default:
 			console.log(message, sender, sendResponse);
@@ -20,6 +26,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	}
 
 });
+
 
 // function updateResult(obj, state) {
 // 	document.getElementById(obj).innerHTML = state;
@@ -95,6 +102,9 @@ function connectHost(force) {
 	port.onMessage.addListener(function (response) {
 		console.log("rev ", response);
 		// 在页面执行消息并返回信息
+		if (response.action !== 'script') {
+			return
+		}
 
 		chrome.tabs.query({ active: true }, function (tabs) {
 			let tab = tabs[0];
@@ -102,7 +112,7 @@ function connectHost(force) {
 				{
 					target: { tabId: tab.id },
 					func: injectPageScript,
-					args: [response.code],
+					args: [response.content],
 				},
 				// function (result) {
 				// 	console.log('Result = ' + result);
@@ -110,13 +120,22 @@ function connectHost(force) {
 				// }
 				(injectionResults) => {
 					try {
-						for (const frameResult of injectionResults) {
-							console.log('返回值为:' + frameResult.result);
-							// 	console.log('Result = ' + result);
-							port.postMessage({ text: frameResult.result + (new Date()).getTime() });
+						if (!injectionResults) {
+							port.postMessage(getMessageData('', 'return'));
+							return;
 						}
+						//console.log(injectionResults);
+						//for (const frameResult of injectionResults) {
+						console.log('返回值为:', injectionResults);
+						// 	console.log('Result = ' + result);
+						port.postMessage(getMessageData(injectionResults[0].result, 'return'));
+						//}
 					} catch (e) {
-						port.postMessage({ text: e.message + (new Date()).getTime() });
+						if (port) {
+							port.postMessage(getMessageData(e.message, 'return'));
+						} else {
+							console.log(e.message);
+						}
 					}
 				}
 				//(injectionResults) => displaySearch(injectionResults[0].result)
