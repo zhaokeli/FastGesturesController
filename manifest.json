@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "FastGestures Agent",
-  "description": "example",
+  "name": "FastGesturesController",
+  "description": "FastGestures谷歌浏览器控制器",
   "version": "1.0",
   "icons": {
     "16": "ico-16x16.png",
