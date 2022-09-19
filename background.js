@@ -198,9 +198,9 @@ setTimeout(() => {
 }, 1000);
 
 // 心跳检测断线重连
-setInterval(() => {
+/* setInterval(() => {
 	if (port) {
 		return;
 	}
 	connectHost();
-}, 5000);
+}, 5000); */
