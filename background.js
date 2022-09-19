@@ -14,6 +14,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		case 'status':
 			sendResponse(port);
 			break;
+		case 'disconn':
+			if (port) {
+				port.postMessage(getMessageData('', 'exit'));
+			}
+			break;
 		case 'conn':
 			connectHost();
 			break;
@@ -143,6 +148,7 @@ function connectHost(force) {
 							console.log(e.message);
 						}
 					} finally {
+						data['callkey'] = response['callkey'];
 						console.log('执行JS返回结果为: ', data);
 						port.postMessage(data);
 					}

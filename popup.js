@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 
 	});
+	document.querySelector('#disconn').addEventListener('click', function () {
+		// 给bg.js发消息
+		chrome.runtime.sendMessage({ action: 'disconn' }, function (response) {
+			setTimeout(() => {
+				checkStatus();
+			}, 2000);
+		});
+
+	});
 	document.querySelector('#reconn').addEventListener('click', function () {
 		// 给bg.js发消息
 		chrome.runtime.sendMessage({ action: 'reconn' }, function (response) {
