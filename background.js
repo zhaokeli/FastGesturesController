@@ -196,3 +196,11 @@ function connectHost(force) {
 setTimeout(() => {
 	connectHost();
 }, 1000);
+
+// 心跳检测断线重连
+setInterval(() => {
+	if (port) {
+		return;
+	}
+	connectHost();
+}, 5000);
