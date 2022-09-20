@@ -2,7 +2,9 @@
 function checkStatus() {
 	// 给bg.js发消息，查询连接状态
 	chrome.runtime.sendMessage({ action: 'status' }, function (response) {
-		document.getElementById('status').innerHTML = response ? "已连接" : '未连接';
+		var obj = document.getElementById('status');
+		obj.innerHTML = response ? "已连接" : '未连接';
+		obj.className = response ? "status-text conn" : "status-text disconn";
 	});
 }
 document.addEventListener('DOMContentLoaded', function () {
