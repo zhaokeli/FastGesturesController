@@ -180,6 +180,7 @@ function connectHost(force) {
 	port.onDisconnect.addListener(function (response) {
 		console.log("disconnect", response);
 		// port.postMessage({ text: "我的应用程序，您好！" });
+		chrome.action.setIcon({ path: 'icon/icon-disabled.png' });
 		port = null;
 	});
 	//port.postMessage({ text: "我的应用程序，您好！" });

@@ -4,6 +4,7 @@ function showElement(id, isShow) {
 function checkStatus() {
 	// 给bg.js发消息，查询连接状态
 	chrome.runtime.sendMessage({ action: 'status' }, function (response) {
+		chrome.action.setIcon({ path: response ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
 		var obj = document.getElementById('status');
 		obj.innerHTML = response ? "已连接" : '未连接';
 		obj.className = response ? "status-text conn" : "status-text disconn";
