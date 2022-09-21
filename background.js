@@ -205,9 +205,6 @@ setTimeout(() => {
 }, 1000);
 
 // 心跳检测断线重连
-/* setInterval(() => {
-	if (port) {
-		return;
-	}
-	connectHost();
-}, 5000); */
+setInterval(() => {
+	chrome.action.setIcon({ path: port ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
+}, 3000);
