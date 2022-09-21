@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	//sendResponse('这是bg.js给的返回值');
 	//连接主机代理
 	switch (message.action) {
-		case 'status':
+		case 'checkstatus':
 			sendConnStatus();
 			break;
 		case 'disconn':

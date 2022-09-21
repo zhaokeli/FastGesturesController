@@ -26,7 +26,7 @@ function showElement(id, isShow) {
 }
 function checkStatus() {
 	// 给bg.js发消息，查询连接状态
-	chrome.runtime.sendMessage({ action: 'status' }, function (response) {
+	chrome.runtime.sendMessage({ action: 'checkstatus' }, function (response) {
 		// chrome.action.setIcon({ path: response ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
 		// updateConnStatus(response);
 	});
