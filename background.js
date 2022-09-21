@@ -6,13 +6,13 @@ function getMessageData(content, action) {
 }
 var port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-	//console.log(message);
+	console.log(message);
 	// 给popup回应消息
 	//sendResponse('这是bg.js给的返回值');
 	//连接主机代理
 	switch (message.action) {
 		case 'status':
-			sendResponse(port);
+			sendConnStatus();
 			break;
 		case 'disconn':
 			if (port) {
@@ -94,7 +94,23 @@ function injectPageScript(payload) {
 // 	});
 // }
 //var testJs = 'alert(document.title);function testget(){return document.title}testget();';
+function getCurrentTab(callback) {
+	chrome.tabs.query({ active: true }, function (tabs) {
+		callback(tabs[0].id);
+		//chrome.runtime.sendMessage({ tabId: tabs[0].id, action: 'status', isConn: false }, function (response) {
+	});
+};
 
+function sendConnStatus() {
+	try {
+		var isConn = !!port;
+		chrome.action.setIcon({ path: isConn ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
+		getCurrentTab(function (tabId) {
+			chrome.runtime.sendMessage({ tabId: tabId, action: 'status', isConn: isConn }, function (response) {
+			});
+		});
+	} catch (e) { }
+}
 function connectHost(force) {
 
 	if (port && !force) {
@@ -182,7 +198,9 @@ function connectHost(force) {
 		// port.postMessage({ text: "我的应用程序，您好！" });
 		chrome.action.setIcon({ path: 'icon/icon-disabled.png' });
 		port = null;
+		sendConnStatus();
 	});
+	sendConnStatus();
 	//port.postMessage({ text: "我的应用程序，您好！" });
 }
 
@@ -205,6 +223,6 @@ setTimeout(() => {
 }, 1000);
 
 // 心跳检测断线重连
-setInterval(() => {
-	chrome.action.setIcon({ path: port ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
-}, 3000);
+// setInterval(() => {
+// 	chrome.action.setIcon({ path: port ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
+// }, 3000);
