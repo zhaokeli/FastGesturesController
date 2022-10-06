@@ -10,7 +10,7 @@
     "128": "icon/icon128.png"
   },
   "action": {
-    "default_icon": "icon/icon48.png",
+    "default_icon": "icon/icon-disabled.png",
     "default_popup": "popup.html"
   },
   "background": {
