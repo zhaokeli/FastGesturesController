@@ -164,6 +164,9 @@ function connectHost(force) {
 							console.log(e.message);
 						}
 					} finally {
+						if (data.content === 'evalCore is not defined') {
+							data.content = '请刷新当前标签页后重试! :(';
+						}
 						data['callkey'] = response['callkey'];
 						console.log('执行JS返回结果为: ', data);
 						port.postMessage(data);
