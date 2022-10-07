@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 			}
 			break;
 		case 'conn':
-			connectHost();
+			connectHost(true);
 			break;
 		case 'reconn':
 			connectHost(true);
