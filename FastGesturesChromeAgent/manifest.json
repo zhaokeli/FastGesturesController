@@ -1,0 +1,9 @@
+{ 
+"name": "com.fastgestures.agent",  
+"description": "FastGestures消息代理",  
+"path": "E:/work/gitrepos/FastGesturesController/FastGesturesChromeAgent/FastGesturesChromeAgent.exe",  
+"type": "stdio",  
+"allowed_origins": [ 
+"chrome-extension://cbibokjldpdnnmblfhfmedjipcnpbaln/" 
+] 
+} 
