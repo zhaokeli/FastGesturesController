@@ -155,7 +155,8 @@ function connectHost(force) {
 						//for (const frameResult of injectionResults) {
 						//console.log('返回值为:', injectionResults);
 						// 	console.log('Result = ' + result);
-						data = getMessageData(injectionResults[0].result, 'return');
+						var content = encodeURIComponent((injectionResults[0].result));
+						data = getMessageData(content, 'return');
 						//}
 					} catch (e) {
 						if (port) {
