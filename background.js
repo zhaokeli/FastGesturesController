@@ -134,11 +134,12 @@ function connectHost(force) {
 
 		chrome.tabs.query({ active: true }, function (tabs) {
 			let tab = tabs[0];
+			let scriptContent = Base64.decode(response.content);
 			chrome.scripting.executeScript(
 				{
 					target: { tabId: tab.id },
 					func: injectPageScript,
-					args: [response.content],
+					args: [scriptContent],
 				},
 				// function (result) {
 				// 	console.log('Result = ' + result);
