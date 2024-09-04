@@ -8,6 +8,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         default:
             break;
     }
+    sendResponse()
     return true;
 });
 
@@ -30,9 +31,12 @@ function showElement(id, isShow) {
 
 function checkStatus() {
     // 给bg.js发消息，查询连接状态
-    chrome.runtime.sendMessage({action: 'checkstatus'}, function (response) {
+    chrome.runtime.sendMessage({ action: 'checkstatus' }, function (response) {
         // chrome.action.setIcon({ path: response ? 'icon/icon48.png' : 'icon/icon-disabled.png' });
         // updateConnStatus(response);
+        if (chrome.runtime.lastError) {
+            console.log(chrome.runtime.lastError)
+        }
     });
 }
 
@@ -41,24 +45,33 @@ document.addEventListener('DOMContentLoaded', function () {
     checkStatus();
     document.querySelector('#conn').addEventListener('click', function () {
         // 给bg.js发消息
-        chrome.runtime.sendMessage({action: 'conn'}, function (response) {
+        chrome.runtime.sendMessage({ action: 'conn' }, function (response) {
             // checkStatus();
             //console.log(response);
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError)
+            }
         });
 
     });
     document.querySelector('#disconn').addEventListener('click', function () {
         // 给bg.js发消息
-        chrome.runtime.sendMessage({action: 'disconn'}, function (response) {
+        chrome.runtime.sendMessage({ action: 'disconn' }, function (response) {
             // setTimeout(() => {
             // 	checkStatus();
             // }, 2000);
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError)
+            }
         });
 
     });
     document.querySelector('#reconn').addEventListener('click', function () {
         // 给bg.js发消息
-        chrome.runtime.sendMessage({action: 'reconn'}, function (response) {
+        chrome.runtime.sendMessage({ action: 'reconn' }, function (response) {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError)
+            }
             // checkStatus();
         });
     });
