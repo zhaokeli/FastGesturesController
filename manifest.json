@@ -30,7 +30,7 @@
       "all_frames": false,
       "matches": ["http://*/*", "https://*/*"],
       "run_at": "document_start",
-      "js": ["js/umd.min.js", "js/jquery-3.6.1.min.js"]
+      "js": ["js/umd.min.js", "js/jquery-3.6.1.min.js","js/fg.js"]
     }
   ]
 }

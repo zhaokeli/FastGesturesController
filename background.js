@@ -256,9 +256,7 @@ function connectHost(force) {
 // });
 
 //首次连接
-setTimeout(() => {
-	connectHost();
-}, 1000);
+connectHost();
 
 // 心跳检测断线重连
 // setInterval(() => {
