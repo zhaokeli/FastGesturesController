@@ -1,5 +1,5 @@
 import './js/umd.min.js'
-
+'use strict';
 function getMessageData(content, action) {
     return {
         action: action,
@@ -61,7 +61,7 @@ async function getCurrentTab() {
 
 async function sendConnStatus() {
     try {
-        var isConn = !!port;
+        let isConn = !!port;
         chrome.action.setIcon({path: isConn ? 'icon/icon48.png' : 'icon/icon-disabled.png'});
         const tab = await getCurrentTab()
         chrome.runtime.sendMessage({tabId: tab.id, action: 'status', isConn: isConn}, function (response) {
@@ -86,8 +86,8 @@ async function connectHost(force) {
     if (port) {
         port.disconnect();
     }
-    // var hostName = "com.fastgestures.agent";
-    // var port = chrome.runtime.connectNative(hostName);
+    // let hostName = "com.fastgestures.agent";
+    // let port = chrome.runtime.connectNative(hostName);
     //updateResult("result1", "已连接");
     port = chrome.runtime.connectNative('com.fastgestures.agent');
     port.onMessage.addListener(async function (response) {
@@ -140,8 +140,9 @@ async function connectHost(force) {
                 if (chrome.runtime.lastError) {
                     console.log(chrome.runtime.lastError)
                 }
+                let data = {};
                 try {
-                    var data = {};
+
                     if (!injectionResults) {
                         data = getMessageData('', 'return');
                         return;
@@ -150,8 +151,8 @@ async function connectHost(force) {
                     //for (const frameResult of injectionResults) {
                     //console.log('返回值为:', injectionResults);
                     // 	console.log('Result = ' + result);
-                    //var content = encodeURIComponent((injectionResults[0].result));
-                    var content = injectionResults[0].result;
+                    //let content = encodeURIComponent((injectionResults[0].result));
+                    let content = injectionResults[0].result;
                     data = getMessageData(content, 'return');
                     //}
                 } catch (e) {
