@@ -1,5 +1,42 @@
 import './js/umd.min.js'
+
 'use strict';
+let fg = {
+    getCurrentTab: async function () {
+        let queryOptions = {active: true, lastFocusedWindow: true};
+        let [tab] = await chrome.tabs.query(queryOptions);
+        return tab;
+    },
+    getSpecificTabs: async function (queryOptions) {
+        let tabs = await chrome.tabs.query(queryOptions);
+        return tabs;
+    },
+    actionTabs: async function (command) {
+        const currentWindow = await chrome.windows.getCurrent();
+        const currentTab = await fg.getCurrentTab();
+        const currentTabIndex = currentTab.index;
+        const specificTabs = await fg.getSpecificTabs({active: false, pinned: false, windowId: currentWindow.id});
+        const tabIds = new Array(specificTabs.length);
+
+        let reTabIds = null;
+
+        if (command === 'other-tabs') {
+            reTabIds = specificTabs.map((tab) => tab.id);
+        } else if (command === 'left-tabs') {
+            reTabIds = specificTabs.filter((tab) => tab.index < currentTabIndex).map((tab) => tab.id);
+        } else if (command === 'right-tabs') {
+            reTabIds = specificTabs.filter((tab) => tab.index > currentTabIndex).map((tab) => tab.id);
+        } else if (command === 'left-tab') {
+            reTabIds = specificTabs.slice(currentTabIndex - 1, currentTabIndex).map(tab => tab.id);
+        } else if (command === 'right-tab') {
+            reTabIds = specificTabs.slice(currentTabIndex, currentTabIndex + 1).map(tab => tab.id);
+        }
+
+        return reTabIds;
+    }
+
+};
+
 function getMessageData(content, action) {
     return {
         action: action,
@@ -45,6 +82,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 function injectPageScript(payload) {
     try {
+        window.fg = fg;
         const evil = evalCore.getEvalInstance(window, {timeout: 10000});
 
         return evil(payload);
@@ -53,17 +91,12 @@ function injectPageScript(payload) {
     }
 }
 
-async function getCurrentTab() {
-    let queryOptions = {active: true, lastFocusedWindow: true};
-    let [tab] = await chrome.tabs.query(queryOptions);
-    return tab;
-}
 
 async function sendConnStatus() {
     try {
         let isConn = !!port;
         chrome.action.setIcon({path: isConn ? 'icon/icon48.png' : 'icon/icon-disabled.png'});
-        const tab = await getCurrentTab()
+        const tab = await fg.getCurrentTab()
         chrome.runtime.sendMessage({tabId: tab.id, action: 'status', isConn: isConn}, function (response) {
             // 下面得判断下(访问下),否则会一直报
             //Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
@@ -95,14 +128,11 @@ async function connectHost(force) {
             console.log(chrome.runtime.lastError)
         }
         console.log("rev ", response);
-        let scriptType = 0;
-        if ('undefined' !== typeof response.type) {
-            scriptType = response.type
-        }
 
         // 扩展脚本
-        if (scriptType === 1) {
+        if (response.action === 'script_ex') {
             try {
+                this.fg = fg;
                 evalCore.getEvalInstance(this)(response.content);
             } catch (e) {
                 console.log(e);
@@ -118,7 +148,7 @@ async function connectHost(force) {
             return true;
         }
 
-        const tab = await getCurrentTab()
+        const tab = await fg.getCurrentTab()
         if (!tab) {
             return true;
         }
