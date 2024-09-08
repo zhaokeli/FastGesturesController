@@ -1,48 +1,6 @@
-import './js/umd.min.js'
-
 'use strict';
-let fg = {
-    getCurrentTab: async function () {
-        let queryOptions = {active: true, lastFocusedWindow: true};
-        let [tab] = await chrome.tabs.query(queryOptions);
-        return tab;
-    },
-    getSpecificTabs: async function (queryOptions) {
-        let tabs = await chrome.tabs.query(queryOptions);
-        return tabs;
-    },
-    actionTabs: async function (command) {
-        const currentWindow = await chrome.windows.getCurrent();
-        const currentTab = await fg.getCurrentTab();
-        const currentTabIndex = currentTab.index;
-        const specificTabs = await fg.getSpecificTabs({active: false, pinned: false, windowId: currentWindow.id});
-        const tabIds = new Array(specificTabs.length);
-
-        let reTabIds = null;
-
-        if (command === 'other-tabs') {
-            reTabIds = specificTabs.map((tab) => tab.id);
-        } else if (command === 'left-tabs') {
-            reTabIds = specificTabs.filter((tab) => tab.index < currentTabIndex).map((tab) => tab.id);
-        } else if (command === 'right-tabs') {
-            reTabIds = specificTabs.filter((tab) => tab.index > currentTabIndex).map((tab) => tab.id);
-        } else if (command === 'left-tab') {
-            reTabIds = specificTabs.slice(currentTabIndex - 1, currentTabIndex).map(tab => tab.id);
-        } else if (command === 'right-tab') {
-            reTabIds = specificTabs.slice(currentTabIndex, currentTabIndex + 1).map(tab => tab.id);
-        }
-
-        return reTabIds;
-    }
-
-};
-
-function getMessageData(content, action) {
-    return {
-        action: action,
-        content: content
-    };
-}
+import './js/umd.min.js'
+import {fg} from './utils.js'
 
 let port = null;
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -59,7 +17,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             break;
         case 'disconn':
             if (port) {
-                port.postMessage(getMessageData('', 'exit'));
+                port.postMessage(fg.getMessageData('', 'exit'));
             }
             break;
         case 'conn':
@@ -69,7 +27,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             connectHost(true);
             break;
         case 'message':
-            port && port.postMessage(getMessageData('msg', message.content));
+            port && port.postMessage(fg.getMessageData('msg', message.content));
             break;
         default:
             console.log(message, sender, sendResponse);
@@ -95,8 +53,15 @@ function injectPageScript(payload) {
 async function sendConnStatus() {
     try {
         let isConn = !!port;
-        chrome.action.setIcon({path: isConn ? 'icon/icon48.png' : 'icon/icon-disabled.png'});
+        chrome.action.setIcon({path: isConn ? 'icon/icon48.png' : 'icon/icon-disabled.png'}).then((result) => {
+            console.log(result)
+        }, (err) => {
+            console.log(err);
+        });
         const tab = await fg.getCurrentTab()
+        if (!tab) {
+            return
+        }
         chrome.runtime.sendMessage({tabId: tab.id, action: 'status', isConn: isConn}, function (response) {
             // 下面得判断下(访问下),否则会一直报
             //Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
@@ -174,7 +139,7 @@ async function connectHost(force) {
                 try {
 
                     if (!injectionResults) {
-                        data = getMessageData('', 'return');
+                        data = fg.getMessageData('', 'return');
                         return;
                     }
                     //console.log(injectionResults);
@@ -183,11 +148,11 @@ async function connectHost(force) {
                     // 	console.log('Result = ' + result);
                     //let content = encodeURIComponent((injectionResults[0].result));
                     let content = injectionResults[0].result;
-                    data = getMessageData(content, 'return');
+                    data = fg.getMessageData(content, 'return');
                     //}
                 } catch (e) {
                     if (port) {
-                        data = getMessageData(e.message, 'return');
+                        data = fg.getMessageData(e.message, 'return');
                     } else {
                         console.log(e.message);
                     }
