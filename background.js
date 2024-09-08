@@ -82,7 +82,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 function injectPageScript(payload) {
     try {
-        window.fg = fg;
+        //window.fg = fg;
         const evil = evalCore.getEvalInstance(window, {timeout: 10000});
 
         return evil(payload);
